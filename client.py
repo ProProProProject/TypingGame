@@ -1,6 +1,7 @@
 import socket
+import sys
 from pynput.keyboard import Key, Listener as KeyboardListener
-import threading
+
 
 # 建立 socket client 並連接
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,14 +23,18 @@ def on_press(key):
             return False
         elif key == Key.space:
             key_str = str(" ")
+        elif key == Key.enter:
+            key_str = str("\n")
         else:
-            key_str = str(key)
+            key_str = ''
 
-    print(f"Pressed: {key_str}")
+    sys.stdout.write(f"Pressed: {key_str}")
+    sys.stdout.flush()
+    # print(f"Pressed: {key_str}",flush=True)
     send_key_to_server(key_str)
 
 # 啟動鍵盤監聽器
-listener = KeyboardListener(on_press=on_press)
+listener = KeyboardListener(on_press=on_press, suppress=True)
 listener.start()
 
 # 保持主執行緒存活（或你可以放你其他的主邏輯）
