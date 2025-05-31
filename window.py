@@ -12,9 +12,9 @@ class GUI:
         self.root.title("Typing Game")
         self.root.geometry("1000x600+350+200")
 
-        label_user=tk.Label(self.root,text=role,font=("Arial", 14), anchor='ne')
+        label_user=tk.Label(self.root,text=role,font=("Arial", 24), anchor='nw')
         label_user.config(fg="red")
-        label_user.pack()
+        label_user.pack(side="top",fill="x",padx=30,pady=20)
 
 
         file=open("typing_script.txt",'r')
@@ -34,7 +34,7 @@ class GUI:
         self.photo2 = ImageTk.PhotoImage(image2)
 
         # 顯示圖片
-        self.canvas=tk.Canvas(self.root,width=1000,height=300)
+        self.canvas=tk.Canvas(self.root,width=1000,height=200)
         self.canvas.pack()
         self.x1=self.x2=50
         self.img1=self.canvas.create_image(self.x1,50,image=self.photo1)

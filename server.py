@@ -1,6 +1,7 @@
 #server.py
 import socket
 import threading
+import time
 import compair
 
 clients={'img1':0,'img2':0}
@@ -15,6 +16,10 @@ def broadcast_positions():
         except:
             pass  # 忽略失敗
 
+def periodic_broadcast():
+    while True:
+        broadcast_positions()
+        time.sleep(0.1)  # 每 100 毫秒廣播一次
 
 def handle_client(client_socket, address):
     print(f"Connection from {address} has been established!")
@@ -49,9 +54,7 @@ def handle_client(client_socket, address):
 
             if clear == True:
                 positions[role] += 50  # 移動圖片
-
-            broadcast_positions()  # 廣播所有圖片座標給所有 client
-
+                
             # Echo the message back to the client
             client_socket.send((str(clear)).encode('utf-8'))
         except Exception as e:
@@ -62,6 +65,9 @@ def handle_client(client_socket, address):
 
 # Main server function
 def start_server():
+    broadcast_thread = threading.Thread(target=periodic_broadcast, daemon=True)
+    broadcast_thread.start()
+
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(('0.0.0.0', 5555))  # Bind to all interfaces on port 5555
     server.listen(5)  # Listen for incoming connections

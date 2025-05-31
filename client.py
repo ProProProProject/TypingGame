@@ -8,36 +8,41 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(('192.168.1.106', 5555))  # 請改為server所在機器的ip
 
 role=client.recv(1024).decode('utf-8')
-print('role= '+role)
+print('role = '+role)
 
-# 啟動鍵盤監聽器（用 thread 避免阻塞 GUI）
-def start_gui():
-    gui = None  # 先建立 gui 的容器
+gui = None  # 先建立 gui 的容器
 
-
-    def send_key_to_server(key_str):
+def receive_positions():
+    global gui
+    while True:
         try:
-            client.send(key_str.encode('utf-8'))
+            data = client.recv(1024).decode('utf-8')
+            if not data:
+                break
+            if ',' not in data:
+                print("單一訊息:", data)
+                if data == 'True' and gui:
+                    gui.clear_text()
+            else:
+                x1, x2 = map(int, data.split(','))
+                if gui:
+                    gui.update_position(x1, x2)
         except Exception as e:
-            print(f"⚠️ 傳送失敗：{e}")
+            print("接收錯誤:", e)
+            break
 
-        
-        def receive_loop():
-            while True:
-                try:
-                    data=client.recv(1024).decode('utf-8')
-                    if not data:
-                        break
-                    if ',' not in data and data=='True':
-                        gui.clear_text()
-                    x1,x2=map(int,data.split(','))
-                    gui.update_position(x1,x2)
-                except:
-                    break
 
-        threading.Thread(target=receive_loop, daemon=True).start()        
-   
+def send_key_to_server(key_str):
+    try:
+        client.send(key_str.encode('utf-8'))
+    except Exception as e:
+        print(f"傳送失敗：{e}")
+    
+
+def start_gui():
+    global gui   
     gui = GUI(send_key_to_server,role)
+    threading.Thread(target=receive_positions, daemon=True).start()    
     gui.run()
 
 
