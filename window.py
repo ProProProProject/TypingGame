@@ -11,22 +11,30 @@ class GUI:
         self.root = tk.Tk()
         self.root.title("Typing Game")
         self.root.geometry("1000x600+350+200")
+        
 
+        #標示user為第幾張圖
         label_user=tk.Label(self.root,text=role,font=("Arial", 24), anchor='nw')
         label_user.config(fg="red")
-        label_user.pack(side="top",fill="x",padx=30,pady=20)
+        label_user.pack(side="top",fill="x",padx=30,pady=10)
+
+        #題目
+        self.canvas=tk.Canvas(self.root,width=1000,height=400)
+        self.canvas.pack(fill="both", expand=True)
+        self.label=tk.Label(self.root,text="",font=("Arial", 30),anchor='center')
+        self.label.config(fg="orange")
+        # 將 Label 放到 Canvas 上方 (x=center, y=100)
+        self.canvas.create_window(500, 50, window=self.label,anchor='center')
 
 
-        file=open("typing_script.txt",'r')
-        content=file.read()
-        label=tk.Label(self.root,text=content,font=("Arial", 14), justify="left")
-        label.pack()
+        # 載入背景圖
+        bg_image = Image.open("picture/bg_grass.jpg")
+        bg_image=bg_image.resize((1000,400))
+        self.bg_photo = ImageTk.PhotoImage(bg_image)
 
         # 載入圖片
         image1 = Image.open("picture/bluebird_fired.png").convert("RGBA")
         image1 = image1.resize((100, 100))
-        # width1,height1=image1.size
-        # image1 = image1.resize((int(width1*0.3), int(height1*0.3)))  # 調整尺寸
         self.photo1 = ImageTk.PhotoImage(image1)
 
         image2 = Image.open("picture/bluebird.png").convert("RGBA")
@@ -34,11 +42,10 @@ class GUI:
         self.photo2 = ImageTk.PhotoImage(image2)
 
         # 顯示圖片
-        self.canvas=tk.Canvas(self.root,width=1000,height=200)
-        self.canvas.pack()
+        self.bg_img=self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
         self.x1=self.x2=50
-        self.img1=self.canvas.create_image(self.x1,50,image=self.photo1)
-        self.img2=self.canvas.create_image(self.x2,100,image=self.photo2)
+        self.img1=self.canvas.create_image(self.x1,120,image=self.photo1)
+        self.img2=self.canvas.create_image(self.x2,200,image=self.photo2)
     
 
         # 建立一個文字變數並與 Entry 綁定
@@ -63,22 +70,23 @@ class GUI:
     def clear_text(self,event=None):
         self.entry.delete(0,tk.END)
 
-    # def move(self):
-    #     if self.role=='img1':
-    #         self.x1+=50
-    #         self.canvas.coords(self.img1,self.x1,50)
-    #     elif self.role=='img2':
-    #         self.x2+=50
-    #         self.canvas.coords(self.img2,self.x2,100)
-    
+    def change_line(self,l):
+        with open("typing_script.txt","r", encoding='utf-8') as file:
+            lines = file.readlines()
+            if l<len(lines):
+                self.label.config(text=lines[l].replace('\n',''))
+            else:
+                self.label.config(text='finish!!')
+
     def update_position(self,x1,x2):
         self.x1=x1
         self.x2=x2
-        self.canvas.coords(self.img1,self.x1,50)
-        self.canvas.coords(self.img2,self.x2,100)
+        self.canvas.coords(self.img1,self.x1,120)
+        self.canvas.coords(self.img2,self.x2,200)
+    
     def on_close(self):
         try:
-            self.send_callback("__EXIT__")  # 傳送空字串給 server
+            self.send_callback("__EXIT__")  
         except Exception as e:
             print("⚠️ 傳送失敗：", e)
         self.root.destroy()  # 關閉視窗
@@ -87,4 +95,22 @@ class GUI:
         self.root.mainloop()
 
 
-    
+    def ending_view(self,winner):
+        self.entry.config(state='disabled')
+        # 建立結束畫面視窗
+        end_window = tk.Toplevel(self.root)
+        end_window.title("遊戲結束")
+        end_window.geometry("300x300+200+100")
+
+        label = tk.Label(end_window, text="遊戲結束！", font=("Arial", 16))
+        label.pack(pady=30)
+        label = tk.Label(end_window, text="Winner is " + winner, font=("Arial", 30))
+        label.pack(pady=30)
+
+        quit_btn = tk.Button(end_window, text="離開", command=self.on_close)
+        quit_btn.pack()
+
+        # 可選：關閉主視窗的互動
+        #self.root.withdraw()  # 隱藏主畫面（如果不想用就拿掉）
+
+        

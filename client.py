@@ -12,22 +12,31 @@ print('role = '+role)
 
 gui = None  # 先建立 gui 的容器
 
-def receive_positions():
+def receive_server():
     global gui
+    line=0
     while True:
         try:
+            gui.change_line(int(line))
             data = client.recv(1024).decode('utf-8')
             if not data:
                 break
-            if ',' not in data:
-                print("單一訊息:", data)
-                if data == 'True' and gui:
-                    gui.clear_text()
+            if ',' not in data :
+                if " " in data:
+                    line,clear=data.split()
+                    if clear == 'True' and gui:
+                        gui.clear_text()
+                else:  
+                    end,winner=data.split(':') 
+                    if end=='True':
+                        gui.ending_view(winner)
+                        break
             else:
                 x1, x2 = map(int, data.split(','))
                 if gui:
                     gui.update_position(x1, x2)
         except Exception as e:
+            print(data)
             print("接收錯誤:", e)
             break
 
@@ -42,13 +51,12 @@ def send_key_to_server(key_str):
 def start_gui():
     global gui   
     gui = GUI(send_key_to_server,role)
-    threading.Thread(target=receive_positions, daemon=True).start()    
+    threading.Thread(target=receive_server, daemon=True).start()    
     gui.run()
 
 
 # 主程式
 if __name__ == "__main__":
-    # 啟動鍵盤監聽器（在背景 thread）
     gui_thread = threading.Thread(target=start_gui)
     gui_thread.start()
     gui_thread.join()
