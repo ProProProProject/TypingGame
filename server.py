@@ -1,23 +1,64 @@
+#server.py
 import socket
 import threading
-import select
 import compair
+
+clients={'img1':0,'img2':0}
+client_sockets = {}
+positions = {'img1': 50, 'img2': 50}
+
+def broadcast_positions():
+    data = f"{positions['img1']},{positions['img2']}"
+    for sock in client_sockets.values():
+        try:
+            sock.send(data.encode('utf-8'))
+        except:
+            pass  # 忽略失敗
+
 
 def handle_client(client_socket, address):
     print(f"Connection from {address} has been established!")
-    l=p=0
+    role = None
+    for i in clients:
+        if clients[i] == 0:
+            clients[i] = address[1]
+            role = i
+            break
+    print (clients)        
+    if not role:
+        client_socket.close()
+        return
+
+    client_sockets[role] = client_socket
+    client_socket.send(role.encode('utf-8'))  # 發角色給 client
+
+    l=0
     while True:
         try:
-            message = client_socket.recv(1).decode('utf-8')
-            if not message:
+            message = client_socket.recv(1024).decode('utf-8')
+            if message=="__EXIT__":
+                print(f"{address}離線，重置角色")
+                clients[role]=0
+                del client_sockets[role]
+                l=0
+                positions[role] = 50
                 break 
-            l,p=compair.compair(message,l,p)
-            print(f"Received from {address}: {message},{l,p}")
+
+            l,clear,end = compair.compair(message,l)
+            print(f"Received from {address}: {message},{l,clear}")
+
+            if clear == True:
+                positions[role] += 50  # 移動圖片
+
+            broadcast_positions()  # 廣播所有圖片座標給所有 client
+
             # Echo the message back to the client
-            # client_socket.send(f"Server received: {message}".encode('utf-8'))
-        except:
+            client_socket.send((str(clear)).encode('utf-8'))
+        except Exception as e:
+            print(f"連線錯誤：{e}")
             break
     client_socket.close()
+
 
 # Main server function
 def start_server():

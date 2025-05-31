@@ -9,3 +9,4 @@
 
 需事先pip項目
 1. pip install pynput
+2. pip install pillow

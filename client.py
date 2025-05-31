@@ -1,40 +1,51 @@
+#client.py
 import socket
-import sys
-from pynput.keyboard import Key, Listener as KeyboardListener
-
+import threading
+from window import GUI
 
 # 建立 socket client 並連接
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('192.168.141.115', 5555))  # 請確保伺服器已在此埠運行
+client.connect(('192.168.1.106', 5555))  # 請改為server所在機器的ip
 
-def send_key_to_server(key_str):
-    try:
-        client.send(key_str.encode('utf-8'))
-    except Exception as e:
-        print(f"\n⚠️ 傳送失敗：{e}")
+role=client.recv(1024).decode('utf-8')
+print('role= '+role)
 
-# 處理鍵盤按下事件
-def on_press(key):
-    try:
-        # 嘗試取得字元（KeyCode）
-        key_str = key.char
-    except AttributeError:# 如果是特殊鍵（Key.space、Key.enter等）
-        if key == Key.esc:
-            return False
-        elif key == Key.space:
-            key_str = str(" ")
-        elif key == Key.enter:
-            key_str = str("\n")
-        else:
-            key_str = ''
+# 啟動鍵盤監聽器（用 thread 避免阻塞 GUI）
+def start_gui():
+    gui = None  # 先建立 gui 的容器
 
-    print(f"Pressed: {key_str}")
-    send_key_to_server(key_str)
 
-# 啟動鍵盤監聽器
-listener = KeyboardListener(on_press=on_press, suppress=True)
-# listener = KeyboardListener(on_press=on_press)
-listener.start()
+    def send_key_to_server(key_str):
+        try:
+            client.send(key_str.encode('utf-8'))
+        except Exception as e:
+            print(f"⚠️ 傳送失敗：{e}")
 
-# 保持主執行緒存活（或你可以放你其他的主邏輯）
-listener.join()
+        
+        def receive_loop():
+            while True:
+                try:
+                    data=client.recv(1024).decode('utf-8')
+                    if not data:
+                        break
+                    if ',' not in data and data=='True':
+                        gui.clear_text()
+                    x1,x2=map(int,data.split(','))
+                    gui.update_position(x1,x2)
+                except:
+                    break
+
+        threading.Thread(target=receive_loop, daemon=True).start()        
+   
+    gui = GUI(send_key_to_server,role)
+    gui.run()
+
+
+# 主程式
+if __name__ == "__main__":
+    # 啟動鍵盤監聽器（在背景 thread）
+    gui_thread = threading.Thread(target=start_gui)
+    gui_thread.start()
+    gui_thread.join()
+
+    
