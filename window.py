@@ -113,18 +113,18 @@ class GUI:
         self.entry.config(state='disabled')
         # 建立結束畫面視窗
         end_window = tk.Toplevel(self.root)
-        end_window.title("遊戲結束")
+        end_window.title("🏁遊戲結束🏁")
         end_window.geometry("300x300+200+100")
+        end_window.configure(bg="#FDF6EC")
 
-        label = tk.Label(end_window, text="遊戲結束！", font=("Arial", 16))
-        label.pack(pady=30)
-        label = tk.Label(end_window, text="Winner is " + winner, font=("Arial", 30))
-        label.pack(pady=30)
+        label1 = tk.Label(end_window, text="遊戲結束！", font=("Helvetica", 22, "bold"), bg="#FDF6EC", fg="#4B3869")
+        label1.pack(pady=30)
+        label2 = tk.Label(end_window, text="Winner is " + winner, font=("Helvetica", 26, "bold"), bg="#FDF6EC", fg="#F59A50")
+        label2.pack(pady=30)
 
-        quit_btn = tk.Button(end_window, text="離開", command=self.on_close)
-        quit_btn.pack()
+        quit_btn = tk.Button(end_window, text="離開", command=self.on_close, fg="white", bg="#30344A", font=("Helvetica", 14, "bold"), padx=20, pady=10, bd=4)
+        quit_btn.pack(pady=20)
 
         # 可選：關閉主視窗的互動
         #self.root.withdraw()  # 隱藏主畫面（如果不想用就拿掉）
-
         
