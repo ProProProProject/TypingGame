@@ -111,7 +111,7 @@ class GUI:
     def change_line(self,l):
         with open("typing_script.txt","r", encoding='utf-8') as file:
             lines = file.readlines()
-            print(f"目前進度第 {l} 行 / 總共 {len(lines)} 行")
+            #print(f"目前進度第 {l} 行 / 總共 {len(lines)} 行")
             if l<len(lines):
                 self.label.config(text=lines[l].replace('\n',''))
             else:
@@ -155,7 +155,7 @@ class GUI:
         # 建立結束畫面視窗
         end_window = tk.Toplevel(self.root)
         end_window.title("🏁遊戲結束🏁")
-        end_window.geometry("300x300+200+100")
+        end_window.geometry("400x300+200+100")
         end_window.configure(bg="#FDF6EC")
 
         label1 = tk.Label(end_window, text="遊戲結束！", font=("Helvetica", 22, "bold"), bg="#FDF6EC", fg="#4B3869")

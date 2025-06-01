@@ -1,6 +1,7 @@
 # server.py
 import socket
 import threading
+import select
 import time
 import compare
 
@@ -44,27 +45,32 @@ def handle_client(client_socket, address):
     global gameEnd
     while True:
         try:
-            message = client_socket.recv(1024).decode('utf-8')
-            if message == "__EXIT__":
-                print(f"{address} 離線，重置角色")
-                clients[role] = 0
-                del client_sockets[role]
-                l = 0
-                positions[role] = 50
-                gameEnd = 'False:None'
-                break
+            ready_to_read, _, _ = select.select([client_socket], [], [], 0.5)
+            if client_socket in ready_to_read:
+                message = client_socket.recv(1024).decode('utf-8')
+                if not message:
+                    break
+                if message == "__EXIT__":
+                    print(f"{address} 離線，重置角色")
+                    clients[role] = 0
+                    del client_sockets[role]
+                    l = 0
+                    positions[role] = 50
+                    gameEnd = 'False:None'
+                    break
 
-            l, clear, end = compare.compare(message, l)
-            print(f"Received from {address}: {message}, {l, clear, end}")
+                l, clear, end = compare.compare(message, l)
+                print(f"Received from {address}: {message}, {l, clear, end}")
 
-            if end:
-                gameEnd = f'True:{role}'
-            if clear:
-                positions[role] += 150
+                if end:
+                    gameEnd = f'True:{role}'
+                if clear:
+                    positions[role] += 150
 
-            reply_data = f"REPLY|{str(l)} {str(clear)}"
-            client_socket.send((reply_data + '\n').encode('utf-8'))
-
+                reply_data = f"REPLY|{str(l)} {str(clear)}"
+                client_socket.send((reply_data + '\n').encode('utf-8'))
+            else:
+                continue
         except Exception as e:
             print(f"連線錯誤：{e}")
             break

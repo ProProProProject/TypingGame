@@ -1,22 +1,20 @@
 # client.py
 import socket
 import threading
+import select
 from window import GUI
-
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('127.0.0.1', 5555))
-
-role = client.recv(1024).decode('utf-8')
-print('role = ' + role)
-
-gui = None
 
 def receive_server():
     global gui
     buffer = ''
     while True:
         try:
-            buffer += client.recv(1024).decode('utf-8')
+            ready_to_read, _, _ = select.select([client], [], [], 0.5)  # timeout 避免阻塞
+            if client in ready_to_read:
+                data_chunk = client.recv(1024).decode('utf-8')
+                if not data_chunk:
+                    break
+                buffer += data_chunk
             while '\n' in buffer:
                 data, buffer = buffer.split('\n', 1)
                 if not data:
@@ -41,7 +39,6 @@ def receive_server():
                 elif data.startswith('REPLY|'):
                     _, payload = data.split('REPLY|', 1)
                     parts = payload.strip().split()
-                    # line, clear = payload.split()
                     if len(parts) == 2:
                         line_str, clean_str = parts
                         line = int(line_str)
@@ -71,6 +68,13 @@ def start_gui():
     gui.run()
 
 if __name__ == "__main__":
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(('192.168.6.115', 5555))
+
+    role = client.recv(1024).decode('utf-8')
+    print('role = ' + role)
+    
+    gui = None
     gui_thread = threading.Thread(target=start_gui)
     gui_thread.start()
     gui_thread.join()

@@ -8,5 +8,4 @@
 * 先抵達終點的玩家獲勝
 
 需事先pip項目
-1. pip install pynput
-2. pip install pillow
+1.  pip install pillow
