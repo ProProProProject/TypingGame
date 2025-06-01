@@ -2,7 +2,7 @@
 import socket
 import threading
 import time
-import compair
+import compare
 
 clients = {'Player 1': 0, 'Player 2': 0, 'Player 3': 0, 'Player 4': 0}
 client_sockets = {}
@@ -10,7 +10,9 @@ positions = {'Player 1': 50, 'Player 2': 50, 'Player 3': 50, 'Player 4': 50}
 gameEnd = 'False:None'
 
 def broadcast_combined():
-    data = f"BROADCAST|{positions['Player 1']},{positions['Player 2']},{positions['Player 3']},{positions['Player 4']}|{gameEnd}"
+    active_roles = ','.join(client_sockets.keys())  # 只傳出有連線的角色
+    pos_data = f"{positions['Player 1']},{positions['Player 2']},{positions['Player 3']},{positions['Player 4']}"
+    data = f"BROADCAST|{pos_data}|{gameEnd}|{active_roles}"
     for sock in client_sockets.values():
         try:
             sock.send((data + '\n').encode('utf-8'))  # 注意 \n
@@ -52,7 +54,7 @@ def handle_client(client_socket, address):
                 gameEnd = 'False:None'
                 break
 
-            l, clear, end = compair.compair(message, l)
+            l, clear, end = compare.compare(message, l)
             print(f"Received from {address}: {message}, {l, clear, end}")
 
             if end:

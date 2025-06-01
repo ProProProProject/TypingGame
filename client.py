@@ -24,10 +24,13 @@ def receive_server():
 
                 if data.startswith('BROADCAST|'):
                     _, payload = data.split('BROADCAST|', 1)
-                    pos_data, end_data = payload.split('|')
+                    pos_data, end_data, actives_roles= payload.split('|')
                     x1, x2, x3, x4 = map(int, pos_data.split(','))
+                    roles = actives_roles.split(',')
+
                     if gui:
                         gui.update_position(x1, x2, x3, x4)
+                        gui.update_active_roles(roles)
 
                     if end_data != 'False:None':
                         end, winner = end_data.split(':')
@@ -37,11 +40,18 @@ def receive_server():
 
                 elif data.startswith('REPLY|'):
                     _, payload = data.split('REPLY|', 1)
-                    line, clear = payload.split()
-                    if gui:
-                        gui.change_line(int(line))
-                        if clear == 'True':
-                            gui.clear_text()
+                    parts = payload.strip().split()
+                    # line, clear = payload.split()
+                    if len(parts) == 2:
+                        line_str, clean_str = parts
+                        line = int(line_str)
+                        clear = clean_str == 'True'
+                        if gui:
+                            gui.change_line(int(line))
+                            if clear:
+                                gui.clear_text()
+                    else:
+                        print(f"REPLY 格式錯誤: {payload}")
 
         except Exception as e:
             print("接收錯誤:", e)

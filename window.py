@@ -33,29 +33,43 @@ class GUI:
         self.bg_photo = ImageTk.PhotoImage(bg_image)
 
         # 載入圖片
-        image1 = Image.open("picture/bluebird_fired.png").convert("RGBA")
-        image1 = image1.resize((100, 100))
-        self.photo1 = ImageTk.PhotoImage(image1)
+        # image1 = Image.open("picture/bluebird_fired.png").convert("RGBA")
+        # image1 = image1.resize((100, 100))
+        # self.photo1 = ImageTk.PhotoImage(image1)
 
-        image2 = Image.open("picture/bluebird.png").convert("RGBA")
-        image2 = image2.resize((100, 100))
-        self.photo2 = ImageTk.PhotoImage(image2)
+        # image2 = Image.open("picture/bluebird.png").convert("RGBA")
+        # image2 = image2.resize((100, 100))
+        # self.photo2 = ImageTk.PhotoImage(image2)
 
-        image3 = Image.open("picture/bluebird_fired.png").convert("RGBA")
-        image3 = image3.resize((100, 100))
-        self.photo3 = ImageTk.PhotoImage(image3)
+        # image3 = Image.open("picture/bluebird_fired.png").convert("RGBA")
+        # image3 = image3.resize((100, 100))
+        # self.photo3 = ImageTk.PhotoImage(image3)
 
-        image4 = Image.open("picture/bluebird.png").convert("RGBA")
-        image4 = image4.resize((100, 100))
-        self.photo4 = ImageTk.PhotoImage(image4)
+        # image4 = Image.open("picture/bluebird.png").convert("RGBA")
+        # image4 = image4.resize((100, 100))
+        # self.photo4 = ImageTk.PhotoImage(image4)
+
+        self.photos = {
+            'Player 1': ImageTk.PhotoImage(Image.open("picture/bluebird_fired.png").resize((100, 100)).convert("RGBA")),
+            'Player 2': ImageTk.PhotoImage(Image.open("picture/bluebird.png").resize((100, 100)).convert("RGBA")),
+            'Player 3': ImageTk.PhotoImage(Image.open("picture/bluebird_fired.png").resize((100, 100)).convert("RGBA")),
+            'Player 4': ImageTk.PhotoImage(Image.open("picture/bluebird.png").resize((100, 100)).convert("RGBA")),
+        }
 
         # 顯示圖片
         self.bg_img=self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
-        self.x1=self.x2=self.x3=self.x4=50
-        self.img1=self.canvas.create_image(self.x1,120,image=self.photo1)
-        self.img2=self.canvas.create_image(self.x2,200,image=self.photo2)
-        self.img3=self.canvas.create_image(self.x3,280,image=self.photo3)
-        self.img4=self.canvas.create_image(self.x4,360,image=self.photo4)
+        # self.x1=self.x2=self.x3=self.x4=50
+        # self.img1=self.canvas.create_image(self.x1,120,image=self.photo1)
+        # self.img2=self.canvas.create_image(self.x2,200,image=self.photo2)
+        # self.img3=self.canvas.create_image(self.x3,280,image=self.photo3)
+        # self.img4=self.canvas.create_image(self.x4,360,image=self.photo4)
+
+        self.positions = {
+            'Player 1': (50, 120),
+            'Player 2': (50, 200),
+            'Player 3': (50, 280),
+            'Player 4': (50, 360)
+        }
 
         #若有需要每個玩家放置不同照片則需改成下列程式碼
         
@@ -68,7 +82,9 @@ class GUI:
         # elif self.role == 'player4':
         #     self.img4 = self.canvas.create_image(self.x4, 360, image=self.photo4)
 
-    
+        self.obj_widgets = {}
+        for role, (x, y) in self.positions.items():
+            self.obj_widgets[role] = self.canvas.create_image(x, y, image=self.photos[role])
 
         # 建立一個文字變數並與 Entry 綁定
         self.text_var = tk.StringVar()
@@ -95,21 +111,34 @@ class GUI:
     def change_line(self,l):
         with open("typing_script.txt","r", encoding='utf-8') as file:
             lines = file.readlines()
+            print(f"目前進度第 {l} 行 / 總共 {len(lines)} 行")
             if l<len(lines):
                 self.label.config(text=lines[l].replace('\n',''))
             else:
                 self.label.config(text='finish!!')
 
     def update_position(self,x1,x2,x3,x4):
-        self.x1=x1
-        self.x2=x2
-        self.x3=x3
-        self.x4=x4
-        self.canvas.coords(self.img1,self.x1,120)
-        self.canvas.coords(self.img2,self.x2,200)
-        self.canvas.coords(self.img3,self.x3,280)
-        self.canvas.coords(self.img4,self.x4,360)
+        # self.x1=x1
+        # self.x2=x2
+        # self.x3=x3
+        # self.x4=x4
+        # self.canvas.coords(self.img1,self.x1,120)
+        # self.canvas.coords(self.img2,self.x2,200)
+        # self.canvas.coords(self.img3,self.x3,280)
+        # self.canvas.coords(self.img4,self.x4,360)
+
+        updates = [x1, x2, x3, x4]
+        for i, role in enumerate(['Player 1', 'Player 2', 'Player 3', 'Player 4']):
+            x, y = updates[i], self.positions[role][1]
+            self.canvas.coords(self.obj_widgets[role], x, y)
     
+    def update_active_roles(self, active_roles):
+        all_roles = ['Player 1', 'Player 2', 'Player 3', 'Player 4']
+        for role in all_roles:
+            if role in self.obj_widgets:
+                state = 'normal' if role in active_roles else 'hidden'
+                self.canvas.itemconfigure(self.obj_widgets[role], state=state)
+
     def on_close(self):
         try:
             self.send_callback("__EXIT__")  
