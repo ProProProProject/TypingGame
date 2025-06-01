@@ -56,6 +56,18 @@ class GUI:
         self.img2=self.canvas.create_image(self.x2,200,image=self.photo2)
         self.img3=self.canvas.create_image(self.x3,280,image=self.photo3)
         self.img4=self.canvas.create_image(self.x4,360,image=self.photo4)
+
+        #若有需要每個玩家放置不同照片則需改成下列程式碼
+        
+        # if self.role == 'player1':
+        #     self.img1 = self.canvas.create_image(self.x1, 120, image=self.photo1)
+        # elif self.role == 'player2':
+        #     self.img2 = self.canvas.create_image(self.x2, 200, image=self.photo2)
+        # elif self.role == 'player3':
+        #     self.img3 = self.canvas.create_image(self.x3, 280, image=self.photo3)
+        # elif self.role == 'player4':
+        #     self.img4 = self.canvas.create_image(self.x4, 360, image=self.photo4)
+
     
 
         # 建立一個文字變數並與 Entry 綁定
