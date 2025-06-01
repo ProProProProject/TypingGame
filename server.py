@@ -4,12 +4,12 @@ import threading
 import time
 import compair
 
-clients={'img1':0,'img2':0}
+clients={'img1':0,'img2':0, 'img3':0, 'img4':0}
 client_sockets = {}
-positions = {'img1': 50, 'img2': 50}
+positions = {'img1': 50, 'img2': 50, 'img3' : 50, 'img4' : 50}
 gameEnd = 'False:None'
 def broadcast_positions():
-    data = f"{positions['img1']},{positions['img2']}"
+    data = f"{positions['img1']},{positions['img2']}, {positions['img3']}, {positions['img4']}"
     for sock in client_sockets.values():
         try:
             sock.send(data.encode('utf-8'))

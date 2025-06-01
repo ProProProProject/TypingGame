@@ -5,7 +5,7 @@ from window import GUI
 
 # 建立 socket client 並連接
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('192.168.1.106', 5555))  # 請改為server所在機器的ip
+client.connect(('127.0.0.1', 5555))  # 請改為server所在機器的ip
 
 role=client.recv(1024).decode('utf-8')
 print('role = '+role)
@@ -32,9 +32,9 @@ def receive_server():
                         gui.ending_view(winner)
                         break
             else:
-                x1, x2 = map(int, data.split(','))
+                x1, x2, x3, x4 = map(int, data.split(','))
                 if gui:
-                    gui.update_position(x1, x2)
+                    gui.update_position(x1, x2, x3, x4)
         except Exception as e:
             print(data)
             print("接收錯誤:", e)

@@ -29,7 +29,7 @@ class GUI:
 
         # 載入背景圖
         bg_image = Image.open("picture/bg_grass.jpg")
-        bg_image=bg_image.resize((1000,400))
+        bg_image=bg_image.resize((1250,500))
         self.bg_photo = ImageTk.PhotoImage(bg_image)
 
         # 載入圖片
@@ -41,11 +41,21 @@ class GUI:
         image2 = image2.resize((100, 100))
         self.photo2 = ImageTk.PhotoImage(image2)
 
+        image3 = Image.open("picture/bluebird_fired.png").convert("RGBA")
+        image3 = image3.resize((100, 100))
+        self.photo3 = ImageTk.PhotoImage(image3)
+
+        image4 = Image.open("picture/bluebird.png").convert("RGBA")
+        image4 = image4.resize((100, 100))
+        self.photo4 = ImageTk.PhotoImage(image4)
+
         # 顯示圖片
         self.bg_img=self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
-        self.x1=self.x2=50
+        self.x1=self.x2=self.x3=self.x4=50
         self.img1=self.canvas.create_image(self.x1,120,image=self.photo1)
         self.img2=self.canvas.create_image(self.x2,200,image=self.photo2)
+        self.img3=self.canvas.create_image(self.x3,280,image=self.photo3)
+        self.img4=self.canvas.create_image(self.x4,360,image=self.photo4)
     
 
         # 建立一個文字變數並與 Entry 綁定
@@ -78,11 +88,15 @@ class GUI:
             else:
                 self.label.config(text='finish!!')
 
-    def update_position(self,x1,x2):
+    def update_position(self,x1,x2,x3,x4):
         self.x1=x1
         self.x2=x2
+        self.x3=x3
+        self.x4=x4
         self.canvas.coords(self.img1,self.x1,120)
         self.canvas.coords(self.img2,self.x2,200)
+        self.canvas.coords(self.img3,self.x3,280)
+        self.canvas.coords(self.img4,self.x4,360)
     
     def on_close(self):
         try:
